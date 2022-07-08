@@ -3,14 +3,38 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, \
     QLabel, QPlainTextEdit, QSpinBox
 
+def formatArray(text):
+    array = []
+    count = 0
+    for i in text :
+        if i :
+            if count==2:
+                count = 0
+                array.push([i])
+            else:
+                array[-1][count] = i
+                ++count
+
 
 def clear():
     ntext.setValue(0)
     mtext.setValue(0)
     ctext.insertPlainText("")
 def solve():
-    print("Here")
-    print(ctext.toPlainText())
+    nqueens = Model("./Universidad.mzn")
+    # Find the MiniZinc solver configuration for Gecode
+    gecode = Solver.lookup("gecode")
+    # Create an Instance of the n-Queens model for Gecode
+    instance = Instance(gecode, nqueens)
+    # Assign 4 to n
+    instance["n"] = ntext.value
+    instance["m"] = mtext.value
+    instance["c"] = formatArray(ctext.toPlainText())
+    result = instance.solve()
+    # Output the array q
+    print(result["X"])
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     w = QWidget()
@@ -58,14 +82,3 @@ if __name__ == "__main__":
     sys.exit(app.exec_())
 # Load n-Queens model from file
 print(5)
-nqueens = Model("./Universidad.mzn")
-# Find the MiniZinc solver configuration for Gecode
-gecode = Solver.lookup("gecode")
-# Create an Instance of the n-Queens model for Gecode
-instance = Instance(gecode, nqueens)
-# Assign 4 to n
-instance["n"] = 4
-instance["c"] = [[1,1],[1,2],[1,3],[3,1]]
-result = instance.solve()
-# Output the array q
-print(result["X"])
