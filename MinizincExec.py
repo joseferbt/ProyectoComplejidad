@@ -1,7 +1,7 @@
 from minizinc import Instance, Model, Solver
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, \
-    QLabel, QPlainTextEdit, QSpinBox
+    QLabel, QTextEdit, QSpinBox
 
 
 def formatArray(text):
@@ -20,7 +20,7 @@ def formatArray(text):
 def clear():
     ntext.setValue(0)
     mtext.setValue(0)
-    ctext.insertPlainText("")
+    ctext.clear()
 
 
 def solve():
@@ -30,13 +30,13 @@ def solve():
     # Create an Instance of the n-Queens model for Gecode
     instance = Instance(gecode, nqueens)
     # Assign 4 to n
-    instance["n"] = ntext.value
-    instance["m"] = mtext.value
+    instance["n"] = ntext.value()
+    instance["m"] = mtext.value()
     instance["c"] = [[1,1],[3,2],[5,5]] # la entrada de tipo [[1,2],[2,1]...]
     #instance["c"] = formatArray(ctext.toPlainText())
     result = instance.solve()
     # Output the array q
-    print(result["x"])
+    print(result["x"],result["y"])
 
 
 if __name__ == "__main__":
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     # text file
     ntext = QSpinBox()
     mtext = QSpinBox()
-    ctext = QPlainTextEdit()
+    ctext = QTextEdit()
 
     # Boton
 
