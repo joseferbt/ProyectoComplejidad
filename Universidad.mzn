@@ -5,13 +5,6 @@ array[1..m,1..2] of int : c; %ubicacion de las ciudades
 var int: pos;
 var 0..n: x;
 var 0..n: y;
-/*
-var float: x;
-var float: y;
-constraint x <= n;
-constraint y <= n;
-
-*/
 
 constraint pos = sum(j in 1..m)(abs(c[j,1]-x)+abs(c[j,2]-y));
 
