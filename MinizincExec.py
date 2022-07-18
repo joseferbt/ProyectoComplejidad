@@ -24,11 +24,11 @@ def clear():
 
 
 def solve():
-    nqueens = Model("./Universidad.mzn")
+    model = Model("./Universidad.mzn")
     # Find the MiniZinc solver configuration for Gecode
-    gecode = Solver.lookup("gecode")
+    solver = Solver.lookup("coin_bc") #COIN_BC / gecode
     # Create an Instance of the n-Queens model for Gecode
-    instance = Instance(gecode, nqueens)
+    instance = Instance(solver, model)
     # Assign 4 to n
     instance["n"] = ntext.value()
     instance["m"] = mtext.value()
