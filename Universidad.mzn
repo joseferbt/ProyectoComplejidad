@@ -12,4 +12,4 @@ constraint y >= 0 /\ y <= n;
 
 solve minimize pos;
 
-output[ " x=",show(x),"\n y=",show(y),"\n distance=" , show (pos)];
+output[ show(x)," ",show(y)];

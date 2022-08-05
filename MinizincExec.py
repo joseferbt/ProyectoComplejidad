@@ -2,7 +2,7 @@ from minizinc import Instance, Model, Solver
 import subprocess
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, \
-    QLabel, QTextEdit, QSpinBox, QFileDialog
+    QLabel, QTextEdit, QSpinBox, QFileDialog, QHBoxLayout
 
 
 def formatArray(text,max):
@@ -31,6 +31,8 @@ def formatArray(text,max):
 def clear():
     ntext.setValue(0)
     mtext.setValue(0)
+    xtext.setText("")
+    ytext.setText("")
     ctext.clear()
 
 def openfile():
@@ -59,7 +61,7 @@ def solve():
     # Output the array q
     print(result["x"],result["y"])
 
-"""
+
 if __name__ == "__main__":
 
     app = QApplication(sys.argv)
@@ -71,12 +73,18 @@ if __name__ == "__main__":
     nLabel.setText("n =")
     mLabel = QLabel(w)
     mLabel.setText("m =")
+    xLabel = QLabel(w)
+    xLabel.setText("x =")
+    yLabel = QLabel(w)
+    yLabel.setText("y =")
     cLabel = QLabel(w)
     cLabel.setText("Cities =")
 
     # text file
     ntext = QSpinBox()
     mtext = QSpinBox()
+    ytext = QLabel()
+    xtext = QLabel()
     ctext = QTextEdit()
 
     # Boton
@@ -91,6 +99,7 @@ if __name__ == "__main__":
     cbtn.clicked.connect(clear)
 
     # Layout
+    hbox = QHBoxLayout(w)
     grid = QGridLayout(w)
     grid.addWidget(nLabel, 0, 0)
     grid.addWidget(ntext, 0, 1)
@@ -101,6 +110,11 @@ if __name__ == "__main__":
     grid.addWidget(sbtn, 3, 1)
     grid.addWidget(cbtn, 3, 0)
     grid.addWidget(filebtn,4,1)
+    hbox.addWidget(xLabel, 5, 0)
+    hbox.addWidget(yLabel, 5, 2)
+    hbox.addWidget(xtext, 5, 1)
+    hbox.addWidget(ytext, 5, 3)
+
 
 
     w.show()
@@ -112,8 +126,9 @@ print(5)
 """
 y = subprocess.run(["minizinc", "--solver" ,"Gecode", "Universidad.mzn" ,"data1.dzn"], capture_output=True,text=True)
 print(y.stdout, "\n")
-print(y.stdout[8])
-"""
+print(y.stdout[0]," ",y.stdout[2])
+
+
 text = "muchas cosas en un escrito con numeros 1 2 3 4 5 6 8 77"
 x= text.split()
 print(x)
