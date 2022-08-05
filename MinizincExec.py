@@ -1,6 +1,8 @@
 from minizinc import Instance, Model, Solver
 import subprocess
 import sys
+import time
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, \
     QLabel, QTextEdit, QSpinBox, QFileDialog, QHBoxLayout
 
@@ -33,6 +35,7 @@ def clear():
     mtext.setValue(0)
     xtext.setText("")
     ytext.setText("")
+    ttext.setText("")
     ctext.clear()
 
 def openfile():
@@ -42,24 +45,34 @@ def openfile():
                                               "data Files (*.dzn)", options=options)
     if fileName:
         path = fileName
-        y = subprocess.run(["minizinc", "--solver", "Gecode", "Universidad.mzn", path], capture_output=True)
-        print(y.stdout[0])
+        time_start = time.time()
+        y = subprocess.run(["minizinc", "--solver", "Gecode", "Universidad.mzn", path], capture_output=True,text=True)
+        time_start = time.time() - time_start
+        print(y.stdout[0], "\n")
+        xtext.setText(y.stdout[0])
+        ytext.setText(y.stdout[2])
+        ttext.setText(str(format(time_start,".3f"))+"Sg")
 
 
 def solve():
     model = Model("./Universidad.mzn")
     # Find the MiniZinc solver configuration for Gecode
-    solver = Solver.lookup("coin_bc") #COIN_BC / gecode
+    solver = Solver.lookup("gecode") #COIN_BC / gecode
     # Create an Instance of the n-Queens model for Gecode
     instance = Instance(solver, model)
     # Assign 4 to n
     instance["n"] = ntext.value()
     instance["m"] = mtext.value()
-    instance["c"] = [[1,1],[3,2],[5,5]] # la entrada de tipo [[1,2],[2,1]...]|1,2|3|
-    #instance["c"] = formatArray(ctext.toPlainText(),ntext.value())
+    #instance["c"] = [[1,1],[3,2],[5,5]] # la entrada de tipo [[1,2],[2,1]...]|1,2|3|
+    instance["c"] = formatArray(ctext.toPlainText(),ntext.value())
+    time_start = time.time()
     result = instance.solve()
+    time_start = time.time() - time_start
     # Output the array q
-    print(result["x"],result["y"])
+    xtext.setText(str(result["x"]))
+    ytext.setText(str(result["y"]))
+    ttext.setText(str(format(time_start,".3f"))+"Sg")
+
 
 
 if __name__ == "__main__":
@@ -69,6 +82,8 @@ if __name__ == "__main__":
     w.setWindowTitle("University GUI")
 
     # labels
+    uLabel = QLabel(w)
+    uLabel.setText("La ubicación de la universidad es :")
     nLabel = QLabel(w)
     nLabel.setText("n =")
     mLabel = QLabel(w)
@@ -79,12 +94,15 @@ if __name__ == "__main__":
     yLabel.setText("y =")
     cLabel = QLabel(w)
     cLabel.setText("Cities =")
+    tLabel = QLabel(w)
+    tLabel.setText("Time =")
 
     # text file
     ntext = QSpinBox()
     mtext = QSpinBox()
     ytext = QLabel()
     xtext = QLabel()
+    ttext = QLabel()
     ctext = QTextEdit()
 
     # Boton
@@ -99,7 +117,7 @@ if __name__ == "__main__":
     cbtn.clicked.connect(clear)
 
     # Layout
-    hbox = QHBoxLayout(w)
+    hbox = QHBoxLayout()
     grid = QGridLayout(w)
     grid.addWidget(nLabel, 0, 0)
     grid.addWidget(ntext, 0, 1)
@@ -110,17 +128,21 @@ if __name__ == "__main__":
     grid.addWidget(sbtn, 3, 1)
     grid.addWidget(cbtn, 3, 0)
     grid.addWidget(filebtn,4,1)
-    hbox.addWidget(xLabel, 5, 0)
-    hbox.addWidget(yLabel, 5, 2)
-    hbox.addWidget(xtext, 5, 1)
-    hbox.addWidget(ytext, 5, 3)
+    grid.addLayout(hbox,5,0,5,2,Qt.AlignHCenter)
+    hbox.addWidget(uLabel)
+    hbox.addWidget(xLabel)
+    hbox.addWidget(xtext)
+    hbox.addWidget(yLabel)
+    hbox.addWidget(ytext)
+    hbox.addWidget(tLabel)
+    hbox.addWidget(ttext)
 
 
 
     w.show()
     sys.exit(app.exec_())
 # Load n-Queens model from file
-print(5)
+
 
 
 """
@@ -128,7 +150,7 @@ y = subprocess.run(["minizinc", "--solver" ,"Gecode", "Universidad.mzn" ,"data1.
 print(y.stdout, "\n")
 print(y.stdout[0]," ",y.stdout[2])
 
-
+"""
 text = "muchas cosas en un escrito con numeros 1 2 3 4 5 6 8 77"
 x= text.split()
 print(x)
@@ -138,6 +160,7 @@ for i in x:
             print(i)
     except:
         continue
-        
-print(formatArray("mu 4as dasd 8 asdq weqw e 84 asd 52 a 654, 5 + 962",55))
 """
+        
+#print(formatArray("1 1 \n 1 1 1 1 1 1 \n 1 1 1 1",55),"[]")
+#"""
