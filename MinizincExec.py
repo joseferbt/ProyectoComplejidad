@@ -2,7 +2,7 @@ from minizinc import Instance, Model, Solver
 import subprocess
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, \
-    QLabel, QTextEdit, QSpinBox
+    QLabel, QTextEdit, QSpinBox, QFileDialog
 
 
 def formatArray(text,max):
@@ -33,6 +33,16 @@ def clear():
     mtext.setValue(0)
     ctext.clear()
 
+def openfile():
+    options = QFileDialog.Options()
+    options |= QFileDialog.DontUseNativeDialog
+    fileName, _ = QFileDialog.getOpenFileName(w, "QFileDialog.getOpenFileName()", "",
+                                              "data Files (*.dzn)", options=options)
+    if fileName:
+        path = fileName
+        y = subprocess.run(["minizinc", "--solver", "Gecode", "Universidad.mzn", path], capture_output=True)
+        print(y.stdout[0])
+
 
 def solve():
     model = Model("./Universidad.mzn")
@@ -43,13 +53,13 @@ def solve():
     # Assign 4 to n
     instance["n"] = ntext.value()
     instance["m"] = mtext.value()
-    instance["c"] = [[1,1],[3,2],[5,5]] # la entrada de tipo [[1,2],[2,1]...]
+    instance["c"] = [[1,1],[3,2],[5,5]] # la entrada de tipo [[1,2],[2,1]...]|1,2|3|
     #instance["c"] = formatArray(ctext.toPlainText(),ntext.value())
     result = instance.solve()
     # Output the array q
     print(result["x"],result["y"])
 
-
+"""
 if __name__ == "__main__":
 
     app = QApplication(sys.argv)
@@ -70,7 +80,9 @@ if __name__ == "__main__":
     ctext = QTextEdit()
 
     # Boton
-
+    filebtn = QPushButton(w)
+    filebtn.setText('select .dzn file')
+    filebtn.clicked.connect(openfile)
     sbtn = QPushButton(w)
     sbtn.setText('Solve')
     sbtn.clicked.connect(solve)
@@ -88,6 +100,8 @@ if __name__ == "__main__":
     grid.addWidget(ctext, 2, 1)
     grid.addWidget(sbtn, 3, 1)
     grid.addWidget(cbtn, 3, 0)
+    grid.addWidget(filebtn,4,1)
+
 
     w.show()
     sys.exit(app.exec_())
@@ -96,8 +110,10 @@ print(5)
 
 
 """
-y = subprocess.run(["ls"], capture_output=True)
-print(y.stdout)
+y = subprocess.run(["minizinc", "--solver" ,"Gecode", "Universidad.mzn" ,"data1.dzn"], capture_output=True,text=True)
+print(y.stdout, "\n")
+print(y.stdout[8])
+"""
 text = "muchas cosas en un escrito con numeros 1 2 3 4 5 6 8 77"
 x= text.split()
 print(x)
