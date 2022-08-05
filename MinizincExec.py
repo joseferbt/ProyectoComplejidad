@@ -141,26 +141,9 @@ if __name__ == "__main__":
 
     w.show()
     sys.exit(app.exec_())
-# Load n-Queens model from file
-
 
 
 """
-y = subprocess.run(["minizinc", "--solver" ,"Gecode", "Universidad.mzn" ,"data1.dzn"], capture_output=True,text=True)
-print(y.stdout, "\n")
-print(y.stdout[0]," ",y.stdout[2])
-
+for writing a file 
+https://www.pythontutorial.net/python-basics/python-write-text-file/#:~:text=To%20write%20to%20a%20text,using%20the%20close()%20method.
 """
-text = "muchas cosas en un escrito con numeros 1 2 3 4 5 6 8 77"
-x= text.split()
-print(x)
-for i in x:
-    try:
-        if isinstance(int(i), int):
-            print(i)
-    except:
-        continue
-"""
-        
-#print(formatArray("1 1 \n 1 1 1 1 1 1 \n 1 1 1 1",55),"[]")
-#"""
