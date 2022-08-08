@@ -4,7 +4,7 @@ import sys
 import time
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, \
-    QLabel, QTextEdit, QSpinBox, QFileDialog, QHBoxLayout
+    QLabel, QTextEdit, QSpinBox, QFileDialog, QHBoxLayout, QComboBox
 
 
 def formatArray(text,max):
@@ -46,9 +46,9 @@ def openfile():
     if fileName:
         path = fileName
         time_start = time.time()
-        y = subprocess.run(["minizinc", "--solver", "Gecode", "Universidad.mzn", path], capture_output=True,text=True)
+        y = subprocess.run(["minizinc", "--solver", "gecode", "Universidad.mzn", path], capture_output=True,text=True)
         time_start = time.time() - time_start
-        print(y.stdout[0], "\n")
+        print(y.stdout, "\n")
         xtext.setText(y.stdout[0])
         ytext.setText(y.stdout[2])
         ttext.setText(str(format(time_start,".3f"))+"Sg")
@@ -115,6 +115,11 @@ if __name__ == "__main__":
     cbtn = QPushButton(w)
     cbtn.setText('Clear')
     cbtn.clicked.connect(clear)
+
+    #select
+    cb = QComboBox()
+    cb.addItem("coin-bc")
+    cb.addItem("gecode")
 
     # Layout
     hbox = QHBoxLayout()
