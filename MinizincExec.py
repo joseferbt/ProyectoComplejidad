@@ -28,10 +28,8 @@ class AnotherWindow(QWidget):
     """
     def __init__(self):
         super().__init__()
-        grid = QGridLayout()
         self.canva = MplCanvas(self, width=5, height=4, dpi=100)
-
-
+        grid = QGridLayout()
         label = QLabel("Another Window asdasdasdasdasd")
         toolbar = NavigationToolbar(self.canva, self)
         grid.addWidget(toolbar,0,0)
@@ -39,8 +37,14 @@ class AnotherWindow(QWidget):
         self.setLayout(grid)
 
     def set(self,xVals,yVals,x,y):
+        self.canva.axes.clear()
+
+        # plot the new data
         self.canva.axes.plot(xVals, yVals, 'ro')
-        self.canva.axes.plot(x,y, 'bo')
+        self.canva.axes.plot(x, y, 'bo')
+
+        # call the draw method on your canvas
+        self.canva.draw()
 
 
 
@@ -94,12 +98,13 @@ def openfile():
 
         y = subprocess.run(["minizinc", "--solver", solver, modelo, path], capture_output=True,text=True)
         time_start = time.time() - time_start
-        print(y.stdout.split(), "\n")
 
-        xtext.setText(y.stdout[0])
-        ytext.setText(y.stdout[2])
+        out = y.stdout.split()
+
+        xtext.setText(out[0])
+        ytext.setText(out[1])
         ttext.setText(str(format(time_start,".3f"))+"Sg")
-        plot.set(xVals,yVals, [int(y.stdout[0])],[int(y.stdout[2])])
+        plot.set(xVals,yVals, [float(out[0])],[float(out[1])])
         plot.show()
 
 def readDznfile(file):
@@ -128,7 +133,7 @@ def dznFormat(array):
     return text
 
 def solve():
-    f = open("data_.dzn", "w")
+    f = open("instacias/data_.dzn", "w")
 # Find the MiniZinc solver configuration for Gecode
     if(cbox.currentText()=="gecode"):
         solver = Solver.lookup("gecode") #COIN_BC / gecode
@@ -158,6 +163,8 @@ def solve():
     xtext.setText(str(format(result["x"],".3f")))
     ytext.setText(str(format(result["y"],".3f")))
     ttext.setText(str(format(time_start,".3f"))+"Sg")
+    plot.set(xVals, yVals, [result["x"]], [result["y"]])
+    plot.show()
 
 
 if __name__ == "__main__":
