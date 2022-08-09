@@ -1,11 +1,47 @@
+import self as self
 from minizinc import Instance, Model, Solver
 import subprocess
-import matplotlib.pyplot as plt
+import numpy
+import matplotlib
+matplotlib.use('Qt5Agg')
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
 import sys
 import time
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, \
-    QLabel, QTextEdit, QSpinBox, QFileDialog, QHBoxLayout, QComboBox
+    QLabel, QTextEdit, QSpinBox, QFileDialog, QHBoxLayout, QComboBox, QMessageBox
+
+
+
+class MplCanvas(FigureCanvasQTAgg):
+
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+        super(MplCanvas, self).__init__(fig)
+
+class AnotherWindow(QWidget):
+    """
+    This "window" is a QWidget. If it has no parent, it
+    will appear as a free-floating window as we want.
+    """
+    def __init__(self):
+        super().__init__()
+        grid = QGridLayout()
+        self.canva = MplCanvas(self, width=5, height=4, dpi=100)
+
+
+        label = QLabel("Another Window asdasdasdasdasd")
+        toolbar = NavigationToolbar(self.canva, self)
+        grid.addWidget(toolbar,0,0)
+        grid.addWidget(self.canva,1,0)
+        self.setLayout(grid)
+
+    def set(self,xVals,yVals,x,y):
+        self.canva.axes.plot(xVals, yVals, 'ro')
+        self.canva.axes.plot(x,y, 'bo')
+
 
 
 def formatArray(text,max):
@@ -26,8 +62,6 @@ def formatArray(text,max):
                 return 1
         except:
             continue
-        
-
     return array
 
 
@@ -46,20 +80,45 @@ def openfile():
                                               "data Files (*.dzn)", options=options)
     if fileName:
         path = fileName
+        datos = numpy.transpose(readDznfile(path))
+        xVals = datos[0]
+        yVals = datos[1]
+
         time_start = time.time()
         if (cbox.currentText() == "gecode"):
-            solver = Solver.lookup("gecode")  # COIN_BC / gecode
+            solver = "gecode" # COIN_BC / gecode
             modelo = "UvInt.mzn"
         else:
-            solver = Solver.lookup("coin-bc")
+            solver = "coin-bc"
             modelo = "UvFloat.mzn"
 
         y = subprocess.run(["minizinc", "--solver", solver, modelo, path], capture_output=True,text=True)
         time_start = time.time() - time_start
-        print(y.stdout, "\n")
+        print(y.stdout.split(), "\n")
+
         xtext.setText(y.stdout[0])
         ytext.setText(y.stdout[2])
         ttext.setText(str(format(time_start,".3f"))+"Sg")
+        plot.set(xVals,yVals, [int(y.stdout[0])],[int(y.stdout[2])])
+        plot.show()
+
+def readDznfile(file):
+    f = open(file, "r")
+    aux=""
+    array= []
+    cont = f.read()
+    for i in range(cont.index("[|")+2,cont.index("|]")):
+        aux += cont[i]
+    arAux=aux.split("|")
+    for i in range(len(arAux)):
+        arAux[i] = arAux[i].split(",")
+    for i in arAux:
+        for j in range(2):
+            i[j] = int(i[j])
+    return arAux
+
+
+
 
 def dznFormat(array):
     text ="[|"
@@ -87,6 +146,9 @@ def solve():
     instance["m"] = m
     #instance["c"] = [[1,1],[3,2],[5,5]] # la entrada de tipo [[1,2],[2,1]...]|1,2|3|
     instance["c"] = c
+    ctrans = numpy.transpose(c)
+    xVals = ctrans[0]
+    yVals = ctrans[1]
     f.write("n = " + str(n)+ ";\nm= "+str(m)+" ;\n"+"c= "+dznFormat(c)+";")
     f.close()
     time_start = time.time()
@@ -96,17 +158,21 @@ def solve():
     xtext.setText(str(format(result["x"],".3f")))
     ytext.setText(str(format(result["y"],".3f")))
     ttext.setText(str(format(time_start,".3f"))+"Sg")
-    plt.plot([1, 2, 3, 4], [1, 4, 9, 16], 'ro')
-    plt.axis([0, 6, 0, 20])
-    plt.show()
-
 
 
 if __name__ == "__main__":
-
+    yVals = []
+    xVals = []
     app = QApplication(sys.argv)
     w = QWidget()
     w.setWindowTitle("University GUI")
+
+    #plot
+    plot = AnotherWindow()
+
+
+    #messageBox
+    msg = QMessageBox(w)
 
     # labels
     uLabel = QLabel(w)
