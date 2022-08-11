@@ -3,8 +3,8 @@ int: n; %numero de ciudades
 int: m;
 array[1..m,1..2] of int : c; %ubicacion de las ciudades 
 var int: pos;
-var 0..n: x;
-var 0..n: y;
+var 0.0..n: x;
+var 0.0..n: y;
 var 0..m: far;
 constraint pos = abs(c[far,1]-x)+abs(c[far,2]-y);
 constraint x >= 0 /\ x <= n;

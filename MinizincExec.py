@@ -133,7 +133,7 @@ def dznFormat(array):
     return text
 
 def solve():
-    f = open("instacias/data_.dzn", "w")
+    f = open("MisInstancias/data_.dzn", "w")
 # Find the MiniZinc solver configuration for Gecode
     if(cbox.currentText()=="gecode"):
         solver = Solver.lookup("gecode") #COIN_BC / gecode
@@ -156,6 +156,7 @@ def solve():
     yVals = ctrans[1]
     f.write("n = " + str(n)+ ";\nm= "+str(m)+" ;\n"+"c= "+dznFormat(c)+";")
     f.close()
+    print("termino")
     time_start = time.time()
     result = instance.solve()
     time_start = time.time() - time_start
@@ -200,6 +201,8 @@ if __name__ == "__main__":
     # text file
     ntext = QSpinBox()
     mtext = QSpinBox()
+    mtext.setMaximum(1000)
+    ntext.setMaximum(1000)
     ytext = QLabel()
     xtext = QLabel()
     ttext = QLabel()
@@ -245,5 +248,3 @@ if __name__ == "__main__":
 
     w.show()
     sys.exit(app.exec_())
-
-
